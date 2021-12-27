@@ -1,0 +1,9 @@
+{
+  "name": "extension-wallet-backend",
+  "version": "0.1.0",
+  "description": "HomePage API Serverless Components",
+  "dependencies": {
+    "express": "^4.17.1",
+    "serverless-http": "^2.7.0"
+  }
+}
