@@ -9,7 +9,23 @@ const dynamoDbClient = new AWS.DynamoDB.DocumentClient();
 
 app.use(express.json());
 
-app.get("/users/:userId", async function (req, res) {
+app.get("/example/users", async function (req, res) {
+  const params = {
+    TableName: USERS_TABLE,
+  };
+
+  try {
+    const { Items } = await dynamoDbClient.scan(params).promise();
+    console.info({ Items })
+    res.json(Items);
+
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Could not retreive user" });
+  }
+});
+
+app.get("/example/users/:userId", async function (req, res) {
   const params = {
     TableName: USERS_TABLE,
     Key: {
@@ -33,7 +49,7 @@ app.get("/users/:userId", async function (req, res) {
   }
 });
 
-app.post("/users", async function (req, res) {
+app.post("/example/users", async function (req, res) {
   const { userId, name } = req.body;
   if (typeof userId !== "string") {
     res.status(400).json({ error: '"userId" must be a string' });
