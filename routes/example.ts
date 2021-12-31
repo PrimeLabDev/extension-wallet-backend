@@ -2,7 +2,6 @@ import * as express from "express";
 import * as dynamoose from "dynamoose";
 
 var router = express.Router();
-// const dynamoDbClient = new AWS.DynamoDB.DocumentClient();
 const USERS_TABLE = process.env.USERS_TABLE || "";
 const UserSchema = new dynamoose.Schema({ userId: String, name: String });
 const User = dynamoose.model(USERS_TABLE, UserSchema);
