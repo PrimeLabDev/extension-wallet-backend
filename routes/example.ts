@@ -1,10 +1,7 @@
 import * as express from "express";
-import * as dynamoose from "dynamoose";
+import User from "../db/models/user";
 
 var router = express.Router();
-const USERS_TABLE = process.env.USERS_TABLE || "";
-const UserSchema = new dynamoose.Schema({ userId: String, name: String });
-const User = dynamoose.model(USERS_TABLE, UserSchema);
 
 router.get("/users", async function (req, res) {
   try {
