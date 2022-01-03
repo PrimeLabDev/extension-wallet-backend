@@ -4,7 +4,7 @@ import * as express from "express";
 import ValidateRequestMiddleware from "../middlewares/validateRequest.middleware";
 import registrationSchema from "../validations/registration.schema";
 import User, { USER_STATUS } from "../../db/user.model";
-import api from "../clients/nearapp.client";
+// import api from "../clients/nearapp.client";
 import { NearApiUser } from "../interfaces/nearApi.interface";
 
 var router = express.Router();
@@ -43,12 +43,9 @@ router.post(
         },
       };
 
-      const newNearAccount = api.createUserAccount(nearAccount);
+      // const newNearAccount = api.createUserAccount(nearAccount);
 
-      res.json({
-        user: newUser,
-        nearAccount: newNearAccount,
-      });
+      res.json(newUser);
     } catch (error) {
       console.log(error);
       res.status(500).json({ error: "Could not create user" });
