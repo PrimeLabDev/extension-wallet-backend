@@ -34,14 +34,14 @@ router.post(
       }
       const newUser = await User.create(user);
 
-      const nearAccount: NearApiUser = {
-        operation: "create_user",
-        args: {
-          email: newUser.email,
-          phone: newUser.phone,
-          account_id: newUser.id,
-        },
-      };
+      // const nearAccount: NearApiUser = {
+      //   operation: "create_user",
+      //   args: {
+      //     email: newUser.email,
+      //     phone: newUser.phone,
+      //     account_id: newUser.id,
+      //   },
+      // };
 
       // const newNearAccount = api.createUserAccount(nearAccount);
 
