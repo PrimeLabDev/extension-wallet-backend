@@ -10,6 +10,11 @@ const api = {
       .post(`${baseUrl}/user/create`, nearAccount)
       .then((response) => response.data);
   },
+  getUserDetails: async (user_id: string) => {
+    return axios
+      .get(`${baseUrl}/user/${user_id}`)
+      .then((response) => response.data);
+  },
 };
 
 export default api;
