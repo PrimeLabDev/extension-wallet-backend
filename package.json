@@ -3,11 +3,12 @@
   "version": "0.1.0",
   "description": "HomePage API Serverless Components",
   "scripts": {
-    "dev": "rm -fr .build && sls offline",
-    "deploy:dev": "sls deploy --stage dev",
+    "dev": "rm -fr .build && sls offline --httpPort 3001",
+    "deploy:dev": "SLS_DEBUG=true sls deploy --stage dev",
     "deploy:prod": "sls deploy --stage prod"
   },
   "dependencies": {
+    "@types/express": "^4.17.13",
     "axios": "^0.24.0",
     "dynamoose": "^2.8.3",
     "express": "^4.17.1",

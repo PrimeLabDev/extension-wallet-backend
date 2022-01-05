@@ -1,0 +1,68 @@
+{
+    "info": {
+        "_postman_id": "67257dcd-4898-4818-9217-0c0abd304105",
+        "name": "Extension Wallet Backend API",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "[POST] /registration",
+            "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"type\": \"EMAIL\",\n    \"email\": \"julio.truzzi@gmail.com\",\n    \"fullName\": \"Julio Truzzi\",\n    \"walletName\": \"juliotruzzi.near\"\n}",
+                    "options": {
+                        "raw": {
+                            "language": "json"
+                        }
+                    }
+                },
+                "url": {
+                    "raw": "http://localhost:3001/api/registration",
+                    "protocol": "http",
+                    "host": [
+                        "localhost"
+                    ],
+                    "port": "3001",
+                    "path": [
+                        "api",
+                        "registration"
+                    ]
+                }
+            },
+            "response": []
+        },
+        {
+            "name": "[POST] /registration/existense",
+            "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"type\": \"EMAIL\",\n    \"email\": \"julio.truzzi@gmail.com\"\n}",
+                    "options": {
+                        "raw": {
+                            "language": "json"
+                        }
+                    }
+                },
+                "url": {
+                    "raw": "http://localhost:3001/api/registration/check_existence",
+                    "protocol": "http",
+                    "host": [
+                        "localhost"
+                    ],
+                    "port": "3001",
+                    "path": [
+                        "api",
+                        "registration",
+                        "check_existence"
+                    ]
+                }
+            },
+            "response": []
+        }
+    ]
+}

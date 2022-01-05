@@ -1,11 +1,11 @@
 import * as dynamoose from "dynamoose";
 
-const USERS_TABLE = process.env.USERS_TABLE || "";
+const USERS_TABLE = `${process.env.USERS_TABLE}`;
 
 export const USER_STATUS = {
   NONE_CREATED: "NONE_CREATED",
   PENDING_VERIFICATION: "PENDING_VERIFICATION",
-  PENDING_NEAR_ACCT: "PENDING_NEAR_ACCT",
+  ACCOUNT_CREATED: "ACCOUNT_CREATED",
 };
 
 export const UserSchema = new dynamoose.Schema(
@@ -14,17 +14,26 @@ export const UserSchema = new dynamoose.Schema(
     email: String,
     phone: String,
     type: String,
-    firstName: String,
-    nearAccountId: String,
-    phrase: String,
+    fullName: String,
+    walletName: String,
     status: String,
-    passcode: String,
+    wallets: {
+      type: Array,
+      schema: [
+        {
+          type: Object,
+          schema: {
+            walletName: String,
+          },
+        },
+      ],
+    },
   },
   {
     timestamps: true,
   }
 );
 
-const UserModel = dynamoose.model(USERS_TABLE, UserSchema);
+const UserModel = dynamoose.model(USERS_TABLE, UserSchema, { create: false });
 
 export default UserModel;
