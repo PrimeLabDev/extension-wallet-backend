@@ -3,9 +3,10 @@ import * as dynamoose from "dynamoose";
 const USERS_TABLE = `${process.env.USERS_TABLE}`;
 
 export const USER_STATUS = {
-  NONE_CREATED: "NONE_CREATED",
+  NO_WALLET: "NO_WALLET",
   PENDING_VERIFICATION: "PENDING_VERIFICATION",
-  ACCOUNT_CREATED: "ACCOUNT_CREATED",
+  PENDING_WALLET_CREATION: "PENDING_WALLET_CREATION",
+  VERIFIED: "VERIFIED",
 };
 
 export const UserSchema = new dynamoose.Schema(
@@ -13,9 +14,8 @@ export const UserSchema = new dynamoose.Schema(
     id: String,
     email: String,
     phone: String,
-    type: String,
+    mode: String,
     fullName: String,
-    walletName: String,
     status: String,
     wallets: {
       type: Array,
@@ -23,7 +23,7 @@ export const UserSchema = new dynamoose.Schema(
         {
           type: Object,
           schema: {
-            walletName: String,
+            account_id: String,
           },
         },
       ],
