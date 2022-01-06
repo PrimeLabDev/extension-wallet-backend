@@ -3,7 +3,7 @@ import api from "../clients/nearapp.client";
 import User from "../../db/user.model";
 export default class UserController {
   static async getDetails(req: Request, res: Response) {
-    const { user_id } = req.body;
+    const { user_id } = req.params;
     try {
       const nearAppsUser = await api.getUserDetails(user_id);
       const user = await User.get(user_id);

@@ -10,6 +10,6 @@ var router = express.Router();
 
 router.post("/registration", registration);
 router.get("/registration/check_existence", checkExistence);
-router.get("/user", UserController.getDetails)
+router.get("/user/:user_id", UserController.getDetails)
 
 module.exports = router;
