@@ -1,13 +1,27 @@
 import axios from "axios";
 
-import CreateNearWalletDTO from "../interfaces/nearApi/CreateNearWalletDTO.interface";
+import {
+  CreateNearWalletRequestDTO,
+  VerifyUserRequestDTO,
+  LoginUserWithWalletRequestDTO,
+} from "../interfaces/nearApi.interface";
 
-const baseUrl = `${process.env.NEAR_API_URL}`;
+const baseUrl = `${process.env.NEAR_USERS_API_URL}`;
 
 const api = {
-  createUserAccount: async (nearAccount: CreateNearWalletDTO) => {
+  createUserAccount: async (data: CreateNearWalletRequestDTO) => {
     return axios
-      .post(`${baseUrl}/user/create`, nearAccount)
+      .post(`${baseUrl}/user/create`, data)
+      .then((response) => response.data);
+  },
+  verifyUser: async (data: VerifyUserRequestDTO) => {
+    return axios
+      .post(`${baseUrl}/user/verify`, data)
+      .then((response) => response.data);
+  },
+  loginUserWithWallet: async (data: LoginUserWithWalletRequestDTO) => {
+    return axios
+      .post(`${baseUrl}/login`, data)
       .then((response) => response.data);
   },
 };

@@ -1,17 +1,17 @@
 import * as Yup from "yup";
 
 const registrationSchema = Yup.object().shape({
-  type: Yup.string()
-    .oneOf(["EMAIL", "PHONE"], "invalid type")
-    .required("type is required"),
+  mode: Yup.string()
+    .oneOf(["email", "phone"], "invalid mode")
+    .required("mode is required"),
   email: Yup.string()
     .email()
-    .when("type", {
-      is: "EMAIL",
+    .when("mode", {
+      is: "email",
       then: Yup.string().email("invalid email").required("email is required"),
     }),
-  phone: Yup.string().when("type", {
-    is: "PHONE",
+  phone: Yup.string().when("mode", {
+    is: "phone",
     then: Yup.string().matches(
       /\(?([0-9]{3})\)?([ .-]?)([0-9]{3})\2([0-9]{4})/,
       "invalid phone number"
