@@ -145,3 +145,18 @@ export const loginUser = async function (req, res) {
   //   res.status(500).json({ error: "Could not login user" });
   // }
 };
+
+export const getDetails = async (req: Request, res: Response) => {
+  const { user_id } = req.params;
+  try {
+    const nearAppsUser = await api.getUserDetails(user_id);
+    const user = await User.get(user_id);
+    res.json({
+      ...nearAppsUser,
+      ...user,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Could not get user details" });
+  }
+}
