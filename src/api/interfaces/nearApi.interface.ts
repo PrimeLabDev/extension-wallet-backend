@@ -6,13 +6,10 @@ export interface CreateNearWalletRequestDTO {
 }
 
 export interface VerifyUserRequestDTO {
-  account_id: string;
-  code: string;
+  walletName: string;
+  nonce: string;
 }
 
 export interface LoginUserWithWalletRequestDTO {
-  account_id?: string;
-  phone?: string;
-  email?: string;
-  mode: string;
+  walletName?: string;
 }
