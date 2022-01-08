@@ -63,7 +63,6 @@ export const checkExistense = async function (req, res) {
     const existingUser = await User.scan(
       mode === "email" ? { email: email } : { phone: phone }
     ).exec();
-    console.info({ existingUser });
 
     res.status(200).json({ exists: existingUser?.count > 0 });
   } catch (error) {
@@ -81,8 +80,8 @@ export const verifyUser = async function (req, res) {
 
   try {
     const verifiedUser = await api.verifyUser({
-      account_id,
-      code,
+      walletName: account_id,
+      nonce: code,
     });
 
     return res.status(200).json(verifiedUser);
@@ -93,57 +92,18 @@ export const verifyUser = async function (req, res) {
 };
 
 export const loginUser = async function (req, res) {
-  const { phone, email, mode }: UserLoginRequestDTO = req.body;
+  const { account_id }: UserLoginRequestDTO = req.body;
 
-  // try {
-  //   const existingUser: any = await User.scan(
-  //     mode === "email" ? { email } : { phone }
-  //   ).exec();
-  //   if (!existingUser) {
-  //     const newUser = await User.create({
-  //       id: crypto.randomUUID(),
-  //       type: mode,
-  //       email: mode === "email" ? email : "",
-  //       phone: mode === "phone" ? phone : "",
-  //       status: USER_STATUS.NO_WALLET,
-  //     });
+  try {
+    const loginResponse = await api.loginUserWithWallet({
+      walletName: account_id,
+    });
 
-  //     if (!newUser) {
-  //       res.status(500).json({ error: "Could not create user" });
-  //     }
-
-  //     const loginResponse = await api.loginUserWithWallet({
-  //       ...(mode === "email" ? { email } : { phone }),
-  //       mode,
-  //     });
-  //     if (!loginResponse) {
-  //       res.status(500).json({ error: "Could not login user" });
-  //     }
-
-  //     if (loginResponse.success) {
-  //       newUser.status = USER_STATUS.PENDING_VERIFICATION;
-  //       User.update({ id: newUser.id }, newUser);
-  //     }
-
-  //     return res.status(200, {
-  //       id: newUser.id,
-  //       status: newUser.status,
-  //       exists: loggedinUser.success,
-  //       message: loggedinUser.message,
-  //       account_id: loggedinUser.account_id,
-  //     });
-  //   }
-
-  //   return res.status(200, {
-  //     id: existingUser.id,
-  //     status: existingUser.status,
-  //     account_id: existingUser.wallets[0].account_id,
-  //     exists: true,
-  //   });
-  // } catch (error) {
-  //   console.log(error);
-  //   res.status(500).json({ error: "Could not login user" });
-  // }
+    return res.status(200, loginResponse);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Could not login user" });
+  }
 };
 
 export const getDetails = async (req: Request, res: Response) => {
@@ -159,4 +119,4 @@ export const getDetails = async (req: Request, res: Response) => {
     console.log(error);
     res.status(500).json({ error: "Could not get user details" });
   }
-}
+};
