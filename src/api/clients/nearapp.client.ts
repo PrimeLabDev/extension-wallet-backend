@@ -16,7 +16,7 @@ const api = {
   },
   verifyUser: async (data: VerifyUserRequestDTO) => {
     return axios
-      .post(`${baseUrl}/user/verify`, data)
+      .post(`${baseUrl}/login/verify`, data)
       .then((response) => response.data);
   },
   loginUserWithWallet: async (data: LoginUserWithWalletRequestDTO) => {

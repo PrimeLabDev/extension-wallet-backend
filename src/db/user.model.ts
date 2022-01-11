@@ -12,22 +12,7 @@ export const USER_STATUS = {
 export const UserSchema = new dynamoose.Schema(
   {
     id: String,
-    email: String,
-    phone: String,
-    mode: String,
-    fullName: String,
     status: String,
-    wallets: {
-      type: Array,
-      schema: [
-        {
-          type: Object,
-          schema: {
-            account_id: String,
-          },
-        },
-      ],
-    },
   },
   {
     timestamps: true,
