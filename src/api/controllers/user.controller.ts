@@ -3,15 +3,20 @@ import api from "../clients/nearapp.client";
 import { Request, Response } from "express";
 
 import registrationSchema from "../validations/registration.schema";
-import User, { USER_STATUS } from "../../db/user.model";
+import User from "../../db/user.model";
+import Wallet from "../../db/wallet.model";
 import {
   RegistrationRequestDTO,
   UserVerificationRequestDTO,
-  UserCheckExistenceRequestDTO,
   UserLoginRequestDTO,
 } from "../interfaces/user.interface";
+import {
+  extractTokenExpiration,
+  generateAccessToken,
+} from "../helpers/auth.helper";
+import { TokenPayload } from "../interfaces/tokenPayload.interface";
 
-export const registration = async function (req, res) {
+export const registration = async function (req: Request, res: Response) {
   const registrationDTO: RegistrationRequestDTO = req.body;
 
   try {
@@ -22,7 +27,7 @@ export const registration = async function (req, res) {
   }
 
   try {
-    // Creating a new user on the near network
+    // Create a new user on the near network
     const newSession = await api.createUserAccount({
       fullName: registrationDTO.fullName,
       walletName: registrationDTO.walletName,
@@ -30,76 +35,125 @@ export const registration = async function (req, res) {
       phone: registrationDTO.phone,
     });
 
-    // Create user in DB
+    // Find existing wallet by walletName
+    const existingWallet = await Wallet.scan({
+      walletName: registrationDTO.walletName,
+    }).exec();
+    // if wallet alraedy exists, exit with error "wallet already exists"
+    if (existingWallet.count > 0) {
+      return res
+        .status(500)
+        .json({ error: "Wallet already exists, please login" });
+    }
+
+    // if wallet doesn't exist create user:
+    const newUserId = crypto.randomUUID();
     const newUser = await User.create({
-      id: crypto.randomUUID(),
+      id: newUserId,
       type: registrationDTO.mode,
-      email: registrationDTO.mode === "email" ? registrationDTO.email : "",
-      phone: registrationDTO.mode === "phone" ? registrationDTO.phone : "",
-      status: USER_STATUS.PENDING_VERIFICATION,
-      wallets: [{ account_id: registrationDTO.walletName }],
     });
 
     if (!newUser) {
       return res.status(500).json({ error: "Could not create user" });
     }
 
+    // Create wallet and associate with user
+    const newWallet = await Wallet.create({
+      id: crypto.randomUUID(),
+      userId: newUserId,
+      walletName: registrationDTO.walletName,
+      email: registrationDTO.mode === "email" ? registrationDTO.email : "",
+      phone: registrationDTO.mode === "phone" ? registrationDTO.phone : "",
+    });
+    if (!newWallet) {
+      return res.status(500).json({ error: "Could not create wallet" });
+    }
+
+    const payload: TokenPayload = {
+      id: newUserId,
+      walletName: registrationDTO.walletName,
+      jwt_access_token: newSession.jwt_access_token,
+      jwt_refresh_token: newSession.jwt_refresh_token,
+    };
+    const token = generateAccessToken(
+      payload,
+      extractTokenExpiration(newSession.jwt_access_token)
+    );
+
     // return id, status and new session (jwtAccessToken, jwtIdToken, jwtRefreshToken, user_info)
     res.json({
       id: newUser.id,
-      status: newUser.status,
-      ...newSession,
+      token,
     });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ error: "Could not create user" });
+    res.status(500).json({ error: "An error has happened" });
   }
 };
 
-export const checkExistense = async function (req, res) {
-  const { email, phone, mode }: UserCheckExistenceRequestDTO = req.body;
+export const verifyUser = async function (req: Request, res: Response) {
+  const { walletName, code }: UserVerificationRequestDTO = req.body;
 
-  try {
-    const existingUser = await User.scan(
-      mode === "email" ? { email: email } : { phone: phone }
-    ).exec();
-
-    res.status(200).json({ exists: existingUser?.count > 0 });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ error: "Could not verify user" });
-  }
-};
-
-export const verifyUser = async function (req, res) {
-  const { account_id, code }: UserVerificationRequestDTO = req.body;
-
-  if (!account_id || !code) {
+  if (!walletName || !code) {
     return res.status(400).json({ type: "MISSING_PARAMETERS" });
   }
 
+  const existingWallet: any = await Wallet.scan({
+    walletName,
+  }).exec();
+
+  if (existingWallet.count === 0) {
+    return res.status(500).json({ error: "Wallet doesn't exist" });
+  }
+
   try {
-    const verifiedUser = await api.verifyUser({
-      walletName: account_id,
+    const newSession = await api.verifyUser({
+      walletName,
       nonce: code,
     });
 
-    return res.status(200).json(verifiedUser);
+    const payload: TokenPayload = {
+      id: existingWallet.userId,
+      walletName: existingWallet.walletName,
+      jwt_access_token: newSession.jwt_access_token,
+      jwt_refresh_token: newSession.jwt_refresh_token,
+    };
+    const token = generateAccessToken(
+      payload,
+      extractTokenExpiration(newSession.jwt_access_token)
+    );
+
+    return res.json({
+      id: existingWallet.userId,
+      token,
+    });
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: "Could not verify user" });
   }
 };
 
-export const loginUser = async function (req, res) {
-  const { account_id }: UserLoginRequestDTO = req.body;
+export const loginUser = async function (req: Request, res: Response) {
+  const { walletName }: UserLoginRequestDTO = req.body;
+  try {
+    const existingWallet = await Wallet.scan({
+      walletName,
+    }).exec();
+
+    if (existingWallet.count === 0) {
+      return res.status(500).json({ error: "Wallet doesn't exist" });
+    }
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ error: "Could not find user" });
+  }
 
   try {
     const loginResponse = await api.loginUserWithWallet({
-      walletName: account_id,
+      walletName,
     });
 
-    return res.status(200, loginResponse);
+    return res.json(loginResponse);
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: "Could not login user" });

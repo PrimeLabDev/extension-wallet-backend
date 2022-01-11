@@ -7,19 +7,9 @@ export interface RegistrationRequestDTO {
 }
 
 export interface UserLoginRequestDTO {
-  account_id?: string;
-  email?: string;
-  phone?: string;
-  mode: string;
+  walletName?: string;
 }
-
-export interface UserCheckExistenceRequestDTO {
-  mode: string;
-  email: string;
-  phone: string;
-}
-
 export interface UserVerificationRequestDTO {
-  account_id: string;
+  walletName: string;
   code: string;
 }

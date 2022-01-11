@@ -1,0 +1,35 @@
+###
+
+POST http://localhost:3001/api/user/registration
+Content-Type: application/json
+
+{
+  "mode": "email",
+  "fullName": "Julio Truzzi",
+  "walletName": "juliotruzzi17.near",
+  "email": "julio.truzzi+17@gmail.com",
+  "phone": ""
+}
+
+###
+
+POST http://localhost:3001/api/user/login HTTP/1.1
+Content-Type: application/json
+
+{
+  "walletName": "juliotruzzi17.near"
+}
+
+###
+
+POST http://localhost:3001/api/user/verify
+Content-Type: application/json
+
+{
+  "walletName": "juliotruzzi12.near",
+  "code": "123456"
+}
+
+###
+
+GET http://localhost:3001/api/user/123456
