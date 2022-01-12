@@ -13,6 +13,7 @@ export const UserSchema = new dynamoose.Schema(
   {
     id: String,
     status: String,
+    passcode: String,
   },
   {
     timestamps: true,
