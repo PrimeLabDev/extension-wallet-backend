@@ -28,21 +28,20 @@ export const registration = async function (req: Request, res: Response) {
   }
 
   try {
-    // Create a new user on the near network
-    const newSession = await api.createUserAccount({
-      fullName: registrationDTO.fullName,
-      walletName: registrationDTO.walletName,
-      email: registrationDTO.email,
-      phone: registrationDTO.phone,
-    });
+    try {
+      // Create a new user on the near network
+      const newSession = await api.createUserAccount({
+        fullName: registrationDTO.fullName,
+        walletName: registrationDTO.walletName,
+        email: registrationDTO.email,
+        phone: registrationDTO.phone,
+      });
 
-    console.info({ newSession });
-  } catch (err) {
-    console.info({ err });
-    return res.status(500).json(err.response.data);
-  }
-
-  try {
+      console.info({ newSession });
+    } catch (err) {
+      console.info({ err });
+      return res.status(500).json(err.response.data);
+    }
     // Find existing wallet by walletName
     const existingWallet = await Wallet.scan({
       walletName: registrationDTO.walletName,
