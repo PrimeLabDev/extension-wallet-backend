@@ -15,7 +15,6 @@ import {
   generateAccessToken,
 } from "../helpers/auth.helper";
 import { TokenPayload } from "../interfaces/tokenPayload.interface";
-import { AnyLengthString } from "aws-sdk/clients/comprehendmedical";
 
 export const registration = async function (req: Request, res: Response) {
   const registrationDTO: RegistrationRequestDTO = req.body;
@@ -27,21 +26,31 @@ export const registration = async function (req: Request, res: Response) {
     return res.status(500).json({ type: err.name, message: err.message });
   }
 
+  let newSession: any = null;
   try {
-    try {
-      // Create a new user on the near network
-      const newSession = await api.createUserAccount({
-        fullName: registrationDTO.fullName,
-        walletName: registrationDTO.walletName,
-        email: registrationDTO.email,
-        phone: registrationDTO.phone,
-      });
+    // Create a new user on the near network
+    newSession = await api.createUserAccount({
+      fullName: registrationDTO.fullName,
+      walletName: registrationDTO.walletName,
+      email: registrationDTO.email,
+      phone: registrationDTO.phone,
+    });
+  } catch (err) {
+    console.info({ err });
+    return res
+      .status(500)
+      .json(
+        newSession?.response?.data
+          ? newSession?.response?.data
+          : { error: err.message }
+      );
+  }
 
-      console.info({ newSession });
-    } catch (err) {
-      console.info({ err });
-      return res.status(500).json(err.response.data);
-    }
+  if (!newSession) {
+    return res.status(500).json("Could not create wallet");
+  }
+
+  try {
     // Find existing wallet by walletName
     const existingWallet = await Wallet.scan({
       walletName: registrationDTO.walletName,
@@ -78,9 +87,7 @@ export const registration = async function (req: Request, res: Response) {
 
     const payload: TokenPayload = {
       id: newUserId,
-      walletName: registrationDTO.walletName,
-      jwt_access_token: newSession.jwt_access_token,
-      jwt_refresh_token: newSession.jwt_refresh_token,
+      near_api: newSession,
     };
     const token = generateAccessToken(
       payload,
@@ -121,9 +128,7 @@ export const verifyUser = async function (req: Request, res: Response) {
 
     const payload: TokenPayload = {
       id: wallets[0].userId,
-      walletName: wallets[0].walletName,
-      jwt_access_token: newSession.jwt_access_token,
-      jwt_refresh_token: newSession.jwt_refresh_token,
+      near_api: newSession,
     };
     const token = generateAccessToken(
       payload,
