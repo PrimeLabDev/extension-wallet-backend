@@ -20,7 +20,7 @@ export const WalletSchema = new dynamoose.Schema(
 const UserModel = dynamoose.model(
   WALLETS_TABLE,
   WalletSchema
-  // , { create: false }
+  , { create: false }
 );
 
 export default UserModel;

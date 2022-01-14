@@ -15,6 +15,7 @@ import {
   generateAccessToken,
 } from "../helpers/auth.helper";
 import { TokenPayload } from "../interfaces/tokenPayload.interface";
+import { AnyLengthString } from "aws-sdk/clients/comprehendmedical";
 
 export const registration = async function (req: Request, res: Response) {
   const registrationDTO: RegistrationRequestDTO = req.body;
@@ -27,14 +28,20 @@ export const registration = async function (req: Request, res: Response) {
   }
 
   try {
-    // Create a new user on the near network
-    const newSession = await api.createUserAccount({
-      fullName: registrationDTO.fullName,
-      walletName: registrationDTO.walletName,
-      email: registrationDTO.email,
-      phone: registrationDTO.phone,
-    });
+    try {
+      // Create a new user on the near network
+      const newSession = await api.createUserAccount({
+        fullName: registrationDTO.fullName,
+        walletName: registrationDTO.walletName,
+        email: registrationDTO.email,
+        phone: registrationDTO.phone,
+      });
 
+      console.info({ newSession });
+    } catch (err) {
+      console.info({ err });
+      return res.status(500).json(err.response.data);
+    }
     // Find existing wallet by walletName
     const existingWallet = await Wallet.scan({
       walletName: registrationDTO.walletName,
@@ -98,11 +105,11 @@ export const verifyUser = async function (req: Request, res: Response) {
     return res.status(400).json({ type: "MISSING_PARAMETERS" });
   }
 
-  const existingWallet: any = await Wallet.scan({
+  const wallets: any = await Wallet.scan({
     walletName,
   }).exec();
 
-  if (existingWallet.count === 0) {
+  if (wallets.count === 0) {
     return res.status(500).json({ error: "Wallet doesn't exist" });
   }
 
@@ -113,8 +120,8 @@ export const verifyUser = async function (req: Request, res: Response) {
     });
 
     const payload: TokenPayload = {
-      id: existingWallet.userId,
-      walletName: existingWallet.walletName,
+      id: wallets[0].userId,
+      walletName: wallets[0].walletName,
       jwt_access_token: newSession.jwt_access_token,
       jwt_refresh_token: newSession.jwt_refresh_token,
     };
@@ -124,9 +131,54 @@ export const verifyUser = async function (req: Request, res: Response) {
     );
 
     return res.json({
-      id: existingWallet.userId,
       token,
     });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Could not verify user" });
+  }
+};
+
+export const createPasscode = async function (req: any, res: Response) {
+  const { code }: any = req.body;
+
+  if (!code) {
+    return res.status(400).json({ type: "MISSING_PARAMETERS" });
+  }
+
+  const user = await User.get(req.session.id);
+
+  if (!user) {
+    return res.status(500).json({ error: "Wallet doesn't exist" });
+  }
+
+  try {
+    await User.update({
+      id: user.id,
+      passcode: code,
+    });
+    res.json({ ok: true });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Could not verify user" });
+  }
+};
+
+export const verifyPasscode = async function (req: any, res: Response) {
+  const { code }: any = req.body;
+
+  if (!code) {
+    return res.status(400).json({ type: "MISSING_PARAMETERS" });
+  }
+
+  const user = await User.get(req.session.id);
+
+  if (!user) {
+    return res.status(500).json({ error: "Wallet doesn't exist" });
+  }
+
+  try {
+    res.json({ valid: user.passcode === code });
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: "Could not verify user" });
@@ -160,7 +212,7 @@ export const loginUser = async function (req: Request, res: Response) {
   }
 };
 
-export const getDetails = async (req: Request, res: Response) => {
+export const getDetailsByUserId = async (req: Request, res: Response) => {
   const { user_id } = req.params;
   try {
     const nearAppsUser = await api.getUserDetails(user_id);
@@ -169,6 +221,37 @@ export const getDetails = async (req: Request, res: Response) => {
       ...nearAppsUser,
       ...user,
     });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Could not get user details by userId" });
+  }
+};
+
+export const getDetails = async (req: any, res: any) => {
+  try {
+    const userId = req.session.id;
+    console.info({ userId });
+    const user = await User.get(userId);
+    user.wallets = await Wallet.scan({ userId: userId }).exec();
+    console.info({ user });
+
+    interface ResponseDTO {
+      id: string;
+      wallets: {
+        walletName: string;
+        email: string;
+      };
+    }
+
+    const response: ResponseDTO = {
+      id: user.id,
+      wallets: user.wallets.map((wallet: any) => ({
+        walletName: wallet.walletName,
+        email: wallet.email,
+      })),
+    };
+
+    res.json(response);
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: "Could not get user details" });
