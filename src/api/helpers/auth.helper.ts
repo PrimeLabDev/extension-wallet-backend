@@ -2,9 +2,6 @@ import * as jwt from "jsonwebtoken";
 import { TokenPayload } from "../interfaces/tokenPayload.interface";
 
 export function generateAccessToken(user: TokenPayload, expiresIn) {
-  console.info({ expiresIn });
-  console.info({ user });
-
   return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET || "", {
     expiresIn: "24h",
   });
