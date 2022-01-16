@@ -4,7 +4,7 @@ import {
   CreateNearWalletRequestDTO,
   VerifyUserRequestDTO,
   LoginUserWithWalletRequestDTO,
-} from "../interfaces/nearApi.interface";
+} from "../interfaces/nearApps.interface";
 
 const baseUrl = `${process.env.NEAR_USERS_API_URL}`;
 
@@ -27,6 +27,11 @@ const api = {
   getUserDetails: async (user_id: string) => {
     return axios
       .get(`${baseUrl}/user/${user_id}`)
+      .then((response) => response.data);
+  },
+  getNFTDetails: async (nft_id: string) => {
+    return axios
+      .get(`${baseUrl}/nft/${nft_id}`)
       .then((response) => response.data);
   },
 };

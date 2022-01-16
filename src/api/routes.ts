@@ -8,9 +8,17 @@ import {
   createPasscode,
   verifyPasscode,
 } from "./controllers/user.controller";
+import {
+  createOffer,
+  getSentOffers,
+  getReceivedOffers,
+} from "./controllers/offer.controller";
 import authenticateToken from "./middlewares/auth.middleware";
 
 var router = express.Router();
+router.post("/offer/create", authenticateToken, createOffer);
+router.get("/offer/sent", authenticateToken, getSentOffers);
+router.get("/offer/received", authenticateToken, getReceivedOffers);
 
 router.post("/user/registration", registration);
 router.post("/user/verify", verifyUser);
@@ -18,6 +26,6 @@ router.post("/user/login", loginUser);
 router.get("/user/details", authenticateToken, getDetails);
 router.post("/user/passcode", authenticateToken, createPasscode);
 router.post("/user/passcode/verify", authenticateToken, verifyPasscode);
-router.get("/user/:user_id", authenticateToken, getDetailsByUserId);
+router.get("/user", authenticateToken, getDetailsByUserId);
 
 module.exports = router;

@@ -7,8 +7,6 @@ function authenticateToken(req, res, next) {
   if (token == null) return res.sendStatus(401);
 
   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET || "", (err, payload: TokenPayload) => {
-    console.log({ err });
-    console.log({ payload });
     if (err) return res.sendStatus(403);
     req.session = payload;
     next();
