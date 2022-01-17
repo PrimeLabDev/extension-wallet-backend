@@ -26,11 +26,12 @@ export const createOffer = async function (
     const details: NearAppsOfferDTO = await api
       .getNFTDetails(createOfferRequestDTO.nft_id)
       .catch((err) => {
-        return nftDetailsMock;
+        // return nftDetailsMock;
         console.info({ err });
         throw "Could not get nft details";
       });
     console.info({ details });
+
     // if wallet doesn't exist create user:
     var expireIn = new Date();
     expireIn.setDate(expireIn.getDate() + createOfferRequestDTO.days_to_expire);
@@ -38,13 +39,13 @@ export const createOffer = async function (
     const newOffer = await Offer.create({
       id: newOfferId,
       nft_id: createOfferRequestDTO.nft_id,
-      owner_id: details.owner_id,
+      owner_id: details.data.owner_id,
       user_id: session.near_api.user_info.user_id,
       expire_in: expireIn,
       days_to_expire: createOfferRequestDTO.days_to_expire,
       amount: createOfferRequestDTO.amount,
       status: "Sent",
-      details: details,
+      details: details.data,
       logs: [],
       createdAt: new Date(),
     }).catch((err) => {

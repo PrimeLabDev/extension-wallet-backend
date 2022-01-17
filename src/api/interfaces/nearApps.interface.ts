@@ -17,17 +17,20 @@ export interface LoginUserWithWalletRequestDTO {
 }
 
 export interface NearAppsOfferDTO {
-  title: string;
-  description: string;
-  category: string;
-  attributes: {
-    attr_name: string;
-    attr_value: string;
-  }[];
-  file_url: string;
-  owner_id: string;
-  collection_id: string;
-  tracker_id: string;
-  created: string;
-  updated: string;
+  message: string;
+  data: {
+    title: string;
+    description: string;
+    category: string;
+    attributes: {
+      attr_name: string;
+      attr_value: string;
+    }[];
+    file_url: string;
+    owner_id: string;
+    collection_id: string;
+    tracker_id: string;
+    created: string;
+    updated: string;
+  };
 }

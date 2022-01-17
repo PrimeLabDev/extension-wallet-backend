@@ -31,7 +31,7 @@ const api = {
   },
   getNFTDetails: async (nft_id: string) => {
     return axios
-      .get(`${baseUrl}/nft/${nft_id}`)
+      .get(`${baseUrl}/nfts/${nft_id}`)
       .then((response) => response.data);
   },
 };
