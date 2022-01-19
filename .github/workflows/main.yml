@@ -20,7 +20,7 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - run: npm install yarn
     - run: yarn install
-    - name: serverless deploy --stage dev
+    - name: serverless deploy --stage prod
       uses: serverless/github-action@master
       with:
         args: deploy
