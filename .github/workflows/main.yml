@@ -8,7 +8,7 @@ on:
 
 jobs:
   production-deploy:
-    if: ${GITHUB_REF##*/} == 'main'
+    if: github.ref == 'refs/heads/main'
     name: deploy
     runs-on: ubuntu-latest
     strategy:
@@ -22,6 +22,7 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - run: npm install yarn
     - run: yarn install
+    if: github.ref == 'refs/heads/master'
     - name: serverless deploy
       uses: serverless/github-action@master
       with:
@@ -29,21 +30,7 @@ jobs:
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  dev-deploy:
-    if: ${GITHUB_REF##*/} == 'refs/heads/dev'
-    name: deploy
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [14.x]
-    steps:
-    - uses: actions/checkout@v2
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
-      with:
-        node-version: ${{ matrix.node-version }}
-    - run: npm install yarn
-    - run: yarn install
+    if: github.ref == 'refs/heads/dev'
     - name: serverless deploy
       uses: serverless/github-action@master
       with:
