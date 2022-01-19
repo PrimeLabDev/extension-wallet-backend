@@ -2,6 +2,14 @@ import * as dynamoose from "dynamoose";
 
 const OFFERS_TABLE = `${process.env.OFFERS_TABLE}`;
 
+export const OFFER_STATUSES = {
+  Sent: "Sent",
+  Accepted: "Accepted",
+  Rejected: "Rejected",
+  Revoked: "Revoked",
+  CounterOffer: "CounterOffer",
+};
+
 export const OfferSchema = new dynamoose.Schema(
   {
     id: String,
@@ -13,14 +21,20 @@ export const OfferSchema = new dynamoose.Schema(
     amount: Number,
     status: {
       type: String,
-      enum: ["Sent", "Accepted", "Rejected", "CounterOffer", "Expired"],
+      enum: [
+        OFFER_STATUSES.Sent,
+        OFFER_STATUSES.Accepted,
+        OFFER_STATUSES.Rejected,
+        OFFER_STATUSES.Revoked,
+        OFFER_STATUSES.CounterOffer,
+      ],
     },
-    logs: Array,
+    logs: Object,
     details: Object,
   },
   {
     timestamps: true,
-    saveUnknown: ["details.**"],
+    saveUnknown: ["details.**", "logs.**"],
   }
 );
 

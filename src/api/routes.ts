@@ -10,15 +10,21 @@ import {
 } from "./controllers/user.controller";
 import {
   createOffer,
+  updateOffer,
   getSentOffers,
   getReceivedOffers,
+  rejectOffer,
+  revokeOffer,
 } from "./controllers/offer.controller";
 import authenticateToken from "./middlewares/auth.middleware";
 
 var router = express.Router();
 router.post("/offer/create", authenticateToken, createOffer);
+router.patch("/offer/update/:id", authenticateToken, updateOffer);
 router.get("/offer/sent", authenticateToken, getSentOffers);
 router.get("/offer/received", authenticateToken, getReceivedOffers);
+router.patch("/offer/reject/:id", authenticateToken, rejectOffer);
+router.patch("/offer/revoke/:id", authenticateToken, revokeOffer);
 
 router.post("/user/registration", registration);
 router.post("/user/verify", verifyUser);

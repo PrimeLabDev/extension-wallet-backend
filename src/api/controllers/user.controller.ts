@@ -248,6 +248,7 @@ export const getDetails = async (req: RequestWithSession, res: any) => {
     const nearAppsUser = await api
       .getUserDetails(session.near_api.user_info.user_id)
       .catch((err) => {
+        console.info({ err });
         throw "Could not get nearapp user details";
       });
 
