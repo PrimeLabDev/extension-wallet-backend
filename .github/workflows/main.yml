@@ -8,12 +8,12 @@ on:
 
 jobs:
   deploy:
+    if: github.ref == 'refs/heads/main'
     name: deploy
     runs-on: ubuntu-latest
     strategy:
       matrix:
         node-version: [14.x]
-    if: ${github.ref} == 'refs/heads/master'
     steps:
     - uses: actions/checkout@v2
     - name: Use Node.js ${{ matrix.node-version }}
@@ -29,7 +29,14 @@ jobs:
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-    if: ${github.ref} == 'refs/heads/dev'
+    
+  deploy_dev:
+    if: github.ref == 'refs/heads/dev'
+    name: deploy
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [14.x]
     steps:
     - uses: actions/checkout@v2
     - name: Use Node.js ${{ matrix.node-version }}
@@ -45,3 +52,4 @@ jobs:
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    
