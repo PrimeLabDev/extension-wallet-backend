@@ -15,6 +15,7 @@ import {
   generateAccessToken,
 } from "../helpers/auth.helper";
 import { TokenPayload } from "../interfaces/tokenPayload.interface";
+import { RequestWithSession } from "../interfaces/express.interface";
 
 export const registration = async function (req: Request, res: Response) {
   const registrationDTO: RegistrationRequestDTO = req.body;
@@ -169,7 +170,10 @@ export const createPasscode = async function (req: any, res: Response) {
   }
 };
 
-export const verifyPasscode = async function (req: any, res: Response) {
+export const verifyPasscode = async function (
+  req: RequestWithSession,
+  res: Response
+) {
   const { code }: any = req.body;
 
   if (!code) {
@@ -217,11 +221,16 @@ export const loginUser = async function (req: Request, res: Response) {
   }
 };
 
-export const getDetailsByUserId = async (req: Request, res: Response) => {
-  const { user_id } = req.params;
+export const getDetailsByUserId = async (
+  req: RequestWithSession,
+  res: Response
+) => {
+  const session: TokenPayload = req.session;
   try {
-    const nearAppsUser = await api.getUserDetails(user_id);
-    const user = await User.get(user_id);
+    const nearAppsUser = await api.getUserDetails(
+      session.near_api.user_info.user_id
+    );
+    const user = await User.get(session.id);
     res.json({
       ...nearAppsUser,
       ...user,
@@ -232,28 +241,35 @@ export const getDetailsByUserId = async (req: Request, res: Response) => {
   }
 };
 
-export const getDetails = async (req: any, res: any) => {
+export const getDetails = async (req: RequestWithSession, res: any) => {
+  const session: TokenPayload = req.session;
+
   try {
-    const userId = req.session.id;
-    console.info({ userId });
-    const user = await User.get(userId);
-    user.wallets = await Wallet.scan({ userId: userId }).exec();
-    console.info({ user });
+    const nearAppsUser = await api
+      .getUserDetails(session.near_api.user_info.user_id)
+      .catch((err) => {
+        console.info({ err });
+        throw "Could not get nearapp user details";
+      });
 
-    interface ResponseDTO {
-      id: string;
-      wallets: {
-        walletName: string;
-        email: string;
-      };
-    }
+    const user = await User.get(session.id).catch((err) => {
+      throw "Could not get user";
+    });
+    user.wallets = await Wallet.scan({ userId: session.id })
+      .exec()
+      .catch((err) => {
+        throw "Could not get user wallets";
+      });
 
-    const response: ResponseDTO = {
-      id: user.id,
-      wallets: user.wallets.map((wallet: any) => ({
-        walletName: wallet.walletName,
-        email: wallet.email,
-      })),
+    const response = {
+      nearAppsUser,
+      user: {
+        id: user.id,
+        wallets: user.wallets.map((wallet: any) => ({
+          walletName: wallet.walletName,
+          email: wallet.email,
+        })),
+      },
     };
 
     res.json(response);

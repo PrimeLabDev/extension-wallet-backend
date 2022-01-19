@@ -1,0 +1,43 @@
+###
+
+POST http://localhost:3001/api/offer/create
+Content-Type: application/json
+authorization: Bearer token
+
+{
+  "nft_id": "thHkGvISXhucKPxr9BvB4",
+  "expire_in": 1642226534,
+  "days_to_expire": 3,
+  "amount": 0.001
+}
+
+###
+
+PATCH http://localhost:3001/api/offer/update/a573ac7f-2f28-49d1-9350-a99173e42a8e
+Content-Type: application/json
+authorization: Bearer token
+
+{
+  "days_to_expire": 3,
+  "amount": 0.002
+}
+
+###
+
+GET http://localhost:3001/api/offer/sent
+authorization: Bearer token
+
+###
+
+GET http://localhost:3001/api/offer/received
+authorization: Bearer token
+
+###
+
+PATCH http://localhost:3001/api/offer/reject/a573ac7f-2f28-49d1-9350-a99173e42a8e
+authorization: Bearer token
+
+###
+
+PATCH http://localhost:3001/api/offer/revoke/a573ac7f-2f28-49d1-9350-a99173e42a8e
+authorization: Bearer token
