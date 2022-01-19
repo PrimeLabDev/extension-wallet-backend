@@ -29,12 +29,11 @@ export const OfferSchema = new dynamoose.Schema(
         OFFER_STATUSES.CounterOffer,
       ],
     },
-    logs: Object,
     details: Object,
   },
   {
     timestamps: true,
-    saveUnknown: ["details.**", "logs.**"],
+    saveUnknown: ["details.**"],
   }
 );
 

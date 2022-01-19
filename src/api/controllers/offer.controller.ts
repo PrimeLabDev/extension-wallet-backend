@@ -51,15 +51,6 @@ export const createOffer = async function (
       throw "Could not create offer";
     });
 
-    Offer.update(newOfferId, {
-      $ADD: {
-        logs: {
-          date: new Date(),
-          message: "Offer created",
-        },
-      },
-    });
-
     // return id, status and new session (jwtAccessToken, jwtIdToken, jwtRefreshToken, user_info)
     res.json(newOffer);
   } catch (error) {
@@ -77,7 +68,7 @@ export const updateOffer = async function (
   const offerId = req.params.id;
   console.info({
     id: offerId,
-    owner_id: session.near_api.user_info.user_id,
+    user_id: session.near_api.user_info.user_id,
   });
 
   try {
@@ -87,14 +78,15 @@ export const updateOffer = async function (
 
     const offers: any = await Offer.scan({
       id: offerId,
-      owner_id: session.near_api.user_info.user_id,
+      user_id: session.near_api.user_info.user_id,
     })
       .exec()
       .catch((err) => {
         console.info({ err });
         throw "Could not find offer";
       });
-    if (offers.length === 0) {
+    console.info({offers});
+    if (offers.count === 0) {
       throw "Could not find offer";
     }
 
@@ -109,7 +101,6 @@ export const updateOffer = async function (
       days_to_expire: updateOfferRequestDTO.days_to_expire,
       amount: updateOfferRequestDTO.amount,
       status: OFFER_STATUSES.Sent,
-      logs: [...offer.logs, { date: new Date(), message: "Offer updated" }],
     }).catch((err) => {
       console.info({ err });
       throw "Could not update offer";
@@ -185,7 +176,7 @@ export const rejectOffer = async function (
         throw "Offer not found";
       });
 
-    if (offers.length === 0) {
+    if (offers.count === 0) {
       throw "Offer not found";
     }
 
@@ -219,7 +210,7 @@ export const revokeOffer = async function (
         throw "Offer not found";
       });
 
-    if (offers.length === 0) {
+    if (offers.count === 0) {
       throw "Offer not found";
     }
     console.info({ offers });
