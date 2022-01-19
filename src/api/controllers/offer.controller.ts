@@ -1,5 +1,5 @@
 import * as crypto from "crypto";
-import { Request, Response } from "express";
+import { Response } from "express";
 
 import api from "../clients/nearapp.client";
 import offerSchema from "../validations/offer.schema";
@@ -31,7 +31,6 @@ export const createOffer = async function (
         console.info({ err });
         throw "Could not get nft details";
       });
-    console.info({ details });
 
     // if wallet doesn't exist create user:
     var expireIn = new Date();
