@@ -9,7 +9,7 @@ on:
 jobs:
   deploy:
     if: github.ref == 'refs/heads/main'
-    name: deploy
+    name: Deploy prod
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -32,7 +32,7 @@ jobs:
     
   deploy_dev:
     if: github.ref == 'refs/heads/dev'
-    name: deploy
+    name: Deploy dev
     runs-on: ubuntu-latest
     strategy:
       matrix:
