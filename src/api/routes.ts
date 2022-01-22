@@ -16,9 +16,13 @@ import {
   rejectOffer,
   revokeOffer,
 } from "./controllers/offer.controller";
+import { getNotifications } from "./controllers/notification.controller";
 import authenticateToken from "./middlewares/auth.middleware";
 
 var router = express.Router();
+
+router.get("/notifications", authenticateToken, getNotifications);
+
 router.post("/offer/create", authenticateToken, createOffer);
 router.patch("/offer/update/:id", authenticateToken, updateOffer);
 router.get("/offer/sent", authenticateToken, getSentOffers);

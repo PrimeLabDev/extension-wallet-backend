@@ -4,6 +4,7 @@ import { Response } from "express";
 import api from "../clients/nearapp.client";
 import offerSchema from "../validations/offer.schema";
 import Offer, { OFFER_STATUSES } from "../../db/offer.model";
+import Notification, { NOTIFICATION_TYPES } from "../../db/notifications.model";
 import {
   CreateOfferRequestDTO,
   UpdateOfferRequestDTO,
@@ -85,12 +86,12 @@ export const updateOffer = async function (
         console.info({ err });
         throw "Could not find offer";
       });
-    console.info({offers});
     if (offers.count === 0) {
       throw "Could not find offer";
     }
 
     const offer = offers[0];
+    console.info({ offer });
 
     // if wallet doesn't exist create user:
     var expireIn = new Date();
@@ -209,18 +210,29 @@ export const revokeOffer = async function (
         console.info({ err });
         throw "Offer not found";
       });
-
     if (offers.count === 0) {
       throw "Offer not found";
     }
-    console.info({ offers });
 
     await Offer.update(offerId, {
       status: OFFER_STATUSES.Revoked,
-    }).catch((err) => {
-      console.info({ err });
-      throw "Could not revoke offer";
-    });
+    })
+      .then(async () => {
+        await Notification.create({
+          id: crypto.randomUUID(),
+          recipient_user_id: offers[0].owner_id,
+          sender_user_id: session.near_api.user_info.user_id,
+          type: NOTIFICATION_TYPES.OfferRevoked,
+          data: {
+            offer_id: offerId,
+          },
+          read: false,
+        });
+      })
+      .catch((err) => {
+        console.info({ err });
+        throw "Could not revoke offer";
+      });
   } catch (error) {
     return res.status(500).json({ error });
   }
