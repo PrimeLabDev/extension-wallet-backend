@@ -1,8 +1,10 @@
 import { Response } from "express";
 
-import Notification from "../../db/notifications.model";
+import NotificationService from "../services/notification.service";
 import { TokenPayload } from "../interfaces/tokenPayload.interface";
 import { RequestWithSession } from "../interfaces/express.interface";
+
+const notificationService = new NotificationService();
 
 export const getNotifications = async function (
   req: RequestWithSession,
@@ -11,15 +13,9 @@ export const getNotifications = async function (
   const session: TokenPayload = req.session;
 
   try {
-    const notifications = await Notification.scan({
-      recipient_user_id: session.near_api.user_info.user_id,
-    })
-      .exec()
-      .catch((err) => {
-        console.info({ err });
-        throw "Could not get user's notifications";
-      });
-
+    const notifications = notificationService.getNotificationsByUserId(
+      session.near_api.user_info.user_id
+    );
     res.json(notifications);
   } catch (error) {
     console.log(error);

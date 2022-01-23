@@ -27,7 +27,7 @@ Content-Type: application/json
 
 {
   "walletName": "juliotruzzi27.near",
-  "code": "761717"
+  "code": "151615"
 }
 
 ###
