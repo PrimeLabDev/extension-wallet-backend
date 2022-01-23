@@ -26,7 +26,7 @@ router.get("/offer/received", authenticateToken, getReceivedOffers);
 router.patch("/offer/reject/:id", authenticateToken, rejectOffer);
 router.patch("/offer/revoke/:id", authenticateToken, revokeOffer);
 
-router.post("/user/registration", registration);
+router.post("/user/create", registration);
 router.post("/user/verify", verifyUser);
 router.post("/user/login", loginUser);
 router.get("/user/details", authenticateToken, getDetails);
