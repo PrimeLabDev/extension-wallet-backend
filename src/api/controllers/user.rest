@@ -1,6 +1,6 @@
 ###
 
-POST http://localhost:3001/api/user/registration
+POST http://localhost:3001/api/user/create
 Content-Type: application/json
 
 {
