@@ -5,7 +5,6 @@ import Wallet from "../../db/wallet.model";
 export class WalletService {
   createWallet = async ({
     userId,
-    mode,
     phone,
     email,
     walletName,
@@ -13,9 +12,9 @@ export class WalletService {
     return await Wallet.create({
       id: crypto.randomUUID(),
       user_id: userId,
-      walletName: walletName,
-      email: mode === "email" ? email : "",
-      phone: mode === "phone" ? phone : "",
+      walletName,
+      email,
+      phone,
     }).catch((err) => {
       console.info({ err });
       throw "Could not create wallet";

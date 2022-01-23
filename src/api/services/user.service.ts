@@ -7,14 +7,13 @@ export class UserService {
     return User.get(id);
   }
 
-  createUser = async ({ type }): Promise<any> => {
+  createEmptyUser = async (): Promise<any> => {
     const newUserId = crypto.randomUUID();
     return await User.create({
       id: newUserId,
-      type: type,
     }).catch((err) => {
       console.info({ err });
-      throw "Could not create user";
+      throw "Could not create empty user";
     });
   };
 

@@ -8,7 +8,6 @@
     "outDir": ".build",
     "moduleResolution": "node",
     "lib": ["es2015"],
-    "rootDir": "./src"
-  },
-  "exclude": ["node_modules", ".build", ".serverless", "postman", ".github"]
+    "rootDir": "./"
+  }
 }

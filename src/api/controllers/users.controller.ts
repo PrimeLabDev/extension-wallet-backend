@@ -27,30 +27,20 @@ export const createUser = async function (req: Request, res: Response) {
     return res.status(500).json({ type: err.name, message: err.message });
   }
 
-  let newSession: any = null;
   try {
-    newSession = await api.createUserAccount({
-      fullName: registrationDTO.fullName,
-      walletName: registrationDTO.walletName,
-      email: registrationDTO.email,
-      phone: registrationDTO.phone,
-    });
-  } catch (err) {
-    console.info({ err });
-    return res
-      .status(500)
-      .json(
-        newSession?.response?.data
-          ? newSession?.response?.data
-          : { error: err.message }
-      );
-  }
+    const newSession = await api
+      .createUserAccount({
+        fullName: registrationDTO.fullName,
+        walletName: registrationDTO.walletName,
+        email: registrationDTO.email,
+        phone: registrationDTO.phone,
+      })
+      .catch((err) => {
+        console.info({ error_message: err.response?.data?.message });
+        throw err.response?.data?.message;
+        // return res.status(500).json({ type: err.name, message: err.message });
+      });
 
-  if (!newSession) {
-    return res.status(500).json("Could not create wallet");
-  }
-
-  try {
     const existingWallet = await walletService.getWalletByWalletName({
       walletName: registrationDTO.walletName,
     });
@@ -60,24 +50,14 @@ export const createUser = async function (req: Request, res: Response) {
         .json({ error: "Wallet already exists, please login" });
     }
 
-    const newUser: any = userService.createUser({
-      type: registrationDTO.mode,
-    });
+    const newUser: any = userService.createEmptyUser();
 
-    if (!newUser) {
-      return res.status(500).json({ error: "Could not create extension user" });
-    }
-
-    const newWallet = await walletService.createWallet({
+    await walletService.createWallet({
       userId: newUser.id,
       walletName: registrationDTO.walletName,
       email: registrationDTO.email,
       phone: registrationDTO.phone,
-      mode: registrationDTO.mode,
     });
-    if (!newWallet) {
-      return res.status(500).json({ error: "Could not create wallet" });
-    }
 
     const payload: TokenPayload = {
       id: newUser.id,
@@ -90,8 +70,7 @@ export const createUser = async function (req: Request, res: Response) {
       token,
     });
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ error: "An error has happened" });
+    res.status(500).json({ message: error });
   }
 };
 

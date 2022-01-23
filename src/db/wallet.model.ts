@@ -9,7 +9,6 @@ export const WalletSchema = new dynamoose.Schema(
     walletName: String,
     email: String,
     phone: String,
-    mode: String,
     fullName: String,
   },
   {
