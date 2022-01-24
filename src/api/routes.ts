@@ -1,4 +1,5 @@
 import * as express from "express";
+import { getContactDetails } from "./controllers/proxies.controller";
 import {
   createUser,
   verifyUser,
@@ -20,6 +21,9 @@ import { getNotifications } from "./controllers/notifications.controller";
 import authenticateToken from "./middlewares/auth.middleware";
 
 var router = express.Router();
+
+// NEARAPPS PROXY ENDPOINTS
+router.get("/contacts/:contactId", authenticateToken, getContactDetails);
 
 router.get("/notifications", authenticateToken, getNotifications);
 

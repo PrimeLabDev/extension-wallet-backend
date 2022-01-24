@@ -7,7 +7,7 @@ dotenv.config();
 const app = express();
 
 app.use(express.json());
-app.use("/api", routes as any);
+app.use("", routes as any);
 
 app.use((req: express.Request, res: express.Response) => {
   return res.status(404).json({
