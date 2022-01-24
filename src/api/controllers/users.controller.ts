@@ -1,23 +1,23 @@
-import * as crypto from "crypto";
 import api from "../clients/nearapp.client";
 import { Request, Response } from "express";
 
 import registrationSchema from "../validations/registration.schema";
-import User from "../../db/user.model";
-import Wallet from "../../db/wallet.model";
 import {
   RegistrationRequestDTO,
   UserVerificationRequestDTO,
   UserLoginRequestDTO,
 } from "../interfaces/user.interface";
-import {
-  extractTokenExpiration,
-  generateAccessToken,
-} from "../helpers/auth.helper";
 import { TokenPayload } from "../interfaces/tokenPayload.interface";
 import { RequestWithSession } from "../interfaces/express.interface";
+import UserService from "../services/user.service";
+import WalletService from "../services/wallet.service";
+import AuthService from "../services/auth.service";
 
-export const registration = async function (req: Request, res: Response) {
+const userService = new UserService();
+const walletService = new WalletService();
+const authService = new AuthService();
+
+export const createUser = async function (req: Request, res: Response) {
   const registrationDTO: RegistrationRequestDTO = req.body;
 
   try {
@@ -27,82 +27,50 @@ export const registration = async function (req: Request, res: Response) {
     return res.status(500).json({ type: err.name, message: err.message });
   }
 
-  let newSession: any = null;
   try {
-    // Create a new user on the near network
-    newSession = await api.createUserAccount({
-      fullName: registrationDTO.fullName,
+    const newSession = await api
+      .createUserAccount({
+        fullName: registrationDTO.fullName,
+        walletName: registrationDTO.walletName,
+        email: registrationDTO.email,
+        phone: registrationDTO.phone,
+      })
+      .catch((err) => {
+        console.info({ error_message: err.response?.data?.message });
+        throw err.response?.data?.message;
+        // return res.status(500).json({ type: err.name, message: err.message });
+      });
+
+    const existingWallet = await walletService.getWalletByWalletName({
       walletName: registrationDTO.walletName,
-      email: registrationDTO.email,
-      phone: registrationDTO.phone,
     });
-  } catch (err) {
-    console.info({ err });
-    return res
-      .status(500)
-      .json(
-        newSession?.response?.data
-          ? newSession?.response?.data
-          : { error: err.message }
-      );
-  }
-
-  if (!newSession) {
-    return res.status(500).json("Could not create wallet");
-  }
-
-  try {
-    // Find existing wallet by walletName
-    const existingWallet = await Wallet.scan({
-      walletName: registrationDTO.walletName,
-    }).exec();
-    // if wallet alraedy exists, exit with error "wallet already exists"
-    if (existingWallet.count > 0) {
+    if (!!existingWallet) {
       return res
         .status(500)
         .json({ error: "Wallet already exists, please login" });
     }
 
-    // if wallet doesn't exist create user:
-    const newUserId = crypto.randomUUID();
-    const newUser = await User.create({
-      id: newUserId,
-      type: registrationDTO.mode,
-    });
+    const newUser: any = userService.createEmptyUser();
 
-    if (!newUser) {
-      return res.status(500).json({ error: "Could not create user" });
-    }
-
-    // Create wallet and associate with user
-    const newWallet = await Wallet.create({
-      id: crypto.randomUUID(),
-      userId: newUserId,
+    await walletService.createWallet({
+      userId: newUser.id,
       walletName: registrationDTO.walletName,
-      email: registrationDTO.mode === "email" ? registrationDTO.email : "",
-      phone: registrationDTO.mode === "phone" ? registrationDTO.phone : "",
+      email: registrationDTO.email,
+      phone: registrationDTO.phone,
     });
-    if (!newWallet) {
-      return res.status(500).json({ error: "Could not create wallet" });
-    }
 
     const payload: TokenPayload = {
-      id: newUserId,
+      id: newUser.id,
       near_api: newSession,
     };
-    const token = generateAccessToken(
-      payload,
-      extractTokenExpiration(newSession.jwt_access_token)
-    );
+    const token = authService.generateAccessToken(payload);
 
-    // return id, status and new session (jwtAccessToken, jwtIdToken, jwtRefreshToken, user_info)
     res.json({
       id: newUser.id,
       token,
     });
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ error: "An error has happened" });
+    res.status(500).json({ message: error });
   }
 };
 
@@ -113,12 +81,12 @@ export const verifyUser = async function (req: Request, res: Response) {
     return res.status(400).json({ type: "MISSING_PARAMETERS" });
   }
 
-  const wallets: any = await Wallet.scan({
-    walletName,
-  }).exec();
+  const existingWallet = await walletService.getWalletByWalletName({
+    walletName: walletName,
+  });
 
-  if (wallets.count === 0) {
-    return res.status(500).json({ error: "Wallet doesn't exist" });
+  if (!existingWallet) {
+    return res.status(404).json({ error: "Wallet doesn't exist" });
   }
 
   try {
@@ -128,13 +96,11 @@ export const verifyUser = async function (req: Request, res: Response) {
     });
 
     const payload: TokenPayload = {
-      id: wallets[0].userId,
+      id: existingWallet.userId,
       near_api: newSession,
     };
-    const token = generateAccessToken(
-      payload,
-      extractTokenExpiration(newSession.jwt_access_token)
-    );
+    console.info({ payload });
+    const token = authService.generateAccessToken(payload);
 
     return res.json({
       token,
@@ -152,17 +118,22 @@ export const createPasscode = async function (req: any, res: Response) {
     return res.status(400).json({ type: "MISSING_PARAMETERS" });
   }
 
-  const user = await User.get(req.session.id);
+  const user = await userService.getUserById(req.session.id);
 
   if (!user) {
     return res.status(500).json({ error: "Wallet doesn't exist" });
   }
 
   try {
-    await User.update({
-      id: user.id,
-      passcode: code,
-    });
+    await userService
+      .updateUserCode({
+        userId: user.id,
+        code,
+      })
+      .catch((err) => {
+        console.info({ err });
+        throw "Could not update user";
+      });
     res.json({ ok: true });
   } catch (error) {
     console.log(error);
@@ -180,7 +151,7 @@ export const verifyPasscode = async function (
     return res.status(400).json({ type: "MISSING_PARAMETERS" });
   }
 
-  const user = await User.get(req.session.id);
+  const user = await userService.getUserById(req.session.id);
 
   if (!user) {
     return res.status(500).json({ error: "Wallet doesn't exist" });
@@ -196,20 +167,15 @@ export const verifyPasscode = async function (
 
 export const loginUser = async function (req: Request, res: Response) {
   const { walletName }: UserLoginRequestDTO = req.body;
+
   try {
-    const existingWallet = await Wallet.scan({
+    const existingWallet = await walletService.getWalletByWalletName({
       walletName,
-    }).exec();
-
-    if (existingWallet.count === 0) {
-      return res.status(500).json({ error: "Wallet doesn't exist" });
+    });
+    if (!existingWallet) {
+      return res.status(404).json({ error: "Wallet doesn't exist" });
     }
-  } catch (error) {
-    console.log(error);
-    return res.status(500).json({ error: "Could not find user" });
-  }
 
-  try {
     const loginResponse = await api.loginUserWithWallet({
       walletName,
     });
@@ -230,7 +196,7 @@ export const getDetailsByUserId = async (
     const nearAppsUser = await api.getUserDetails(
       session.near_api.user_info.user_id
     );
-    const user = await User.get(session.id);
+    const user = await userService.getUserById(session.id);
     res.json({
       ...nearAppsUser,
       ...user,
@@ -252,11 +218,11 @@ export const getDetails = async (req: RequestWithSession, res: any) => {
         throw "Could not get nearapp user details";
       });
 
-    const user = await User.get(session.id).catch((err) => {
+    const user = await userService.getUserById(session.id).catch((err) => {
       throw "Could not get user";
     });
-    user.wallets = await Wallet.scan({ userId: session.id })
-      .exec()
+    user.wallets = await walletService
+      .getWalletsByUserId(user.id)
       .catch((err) => {
         throw "Could not get user wallets";
       });

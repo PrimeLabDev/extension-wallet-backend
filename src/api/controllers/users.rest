@@ -4,7 +4,6 @@ POST http://localhost:3001/api/user/create
 Content-Type: application/json
 
 {
-  "mode": "email",
   "fullName": "Julio Truzzi",
   "walletName": "juliotruzzi27.near",
   "email": "julio.truzzi@gmail.com",
@@ -27,7 +26,7 @@ Content-Type: application/json
 
 {
   "walletName": "juliotruzzi27.near",
-  "code": "761717"
+  "code": "151615"
 }
 
 ###

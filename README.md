@@ -51,7 +51,6 @@ Wallets: wallets-table-dev (to be renamed to extension-wallets-dev)
   walletName: String,
   email: String,
   phone: String,
-  mode: String,
   fullName: String,
 }
 ```
