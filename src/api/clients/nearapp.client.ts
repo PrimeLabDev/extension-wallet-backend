@@ -9,6 +9,18 @@ import {
 const baseUrl = `${process.env.NEAR_USERS_API_URL}`;
 
 const api = {
+  proxyNearApps: async ({ method, url, token, data, params }) => {
+    return axios({
+      method,
+      url: `${baseUrl}${url}`,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      params,
+      data,
+    });
+  },
   createUserAccount: async (data: CreateNearWalletRequestDTO) => {
     return axios
       .post(`${baseUrl}/user/create`, data)
