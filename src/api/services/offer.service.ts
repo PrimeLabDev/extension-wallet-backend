@@ -48,7 +48,7 @@ export class OfferService {
 
   getOfferById = async (offerId) => {
     try {
-      return await Offer.get(offerId);
+      return Offer.get(offerId);
     } catch (error) {
       console.log(error);
       throw `Could not get offer by id=${offerId}`;
