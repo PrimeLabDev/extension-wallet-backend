@@ -1,5 +1,12 @@
 import * as express from "express";
-import { getContactDetails } from "./controllers/proxies.controller";
+import {
+  getContact,
+  getContactList,
+  createContact,
+  updateContact,
+  getNFT,
+  getNFTs,
+} from "./controllers/proxies.controller";
 import {
   createUser,
   verifyUser,
@@ -23,10 +30,17 @@ import authenticateToken from "./middlewares/auth.middleware";
 var router = express.Router();
 
 // NEARAPPS PROXY ENDPOINTS
-router.get("/contacts/:contactId", authenticateToken, getContactDetails);
+router.get("/contacts/:contactId", authenticateToken, getContact);
+router.get("/contacts/list/:userId", authenticateToken, getContactList);
+router.post("/contacts", authenticateToken, createContact);
+router.put("/contacts/:contactId", authenticateToken, updateContact);
+router.get("/nfts/:nftId", authenticateToken, getNFT);
+router.get("/nfts/list", authenticateToken, getNFTs);
 
+// Notifications
 router.get("/notifications", authenticateToken, getNotifications);
 
+// Offers
 router.post("/offer/create", authenticateToken, createOffer);
 router.patch("/offer/update/:id", authenticateToken, updateOffer);
 router.get("/offer/sent", authenticateToken, getSentOffers);
@@ -34,6 +48,7 @@ router.get("/offer/received", authenticateToken, getReceivedOffers);
 router.patch("/offer/reject/:id", authenticateToken, rejectOffer);
 router.patch("/offer/revoke/:id", authenticateToken, revokeOffer);
 
+// Users
 router.post("/user/create", createUser);
 router.post("/user/verify", verifyUser);
 router.post("/user/login", loginUser);
