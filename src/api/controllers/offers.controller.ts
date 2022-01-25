@@ -55,9 +55,8 @@ export const updateOffer = async function (
       throw "Invalid params";
     });
 
-    const offer: any = await offerService.getOfferById(offerId);
-
-    if (offer.user_id !== session.near_api.user_info.user_id) {
+    const offer = await offerService.getOfferById(offerId);
+    if (!offer || offer.user_id !== session.near_api.user_info.user_id) {
       throw "Offer does not belong to user";
     }
 

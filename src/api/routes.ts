@@ -24,7 +24,10 @@ import {
   rejectOffer,
   revokeOffer,
 } from "./controllers/offers.controller";
-import { getNotifications } from "./controllers/notifications.controller";
+import {
+  getNotifications,
+  getUnreadNotificationsAmount,
+} from "./controllers/notifications.controller";
 import authenticateToken from "./middlewares/auth.middleware";
 
 var router = express.Router();
@@ -39,6 +42,7 @@ router.get("/nfts/list", authenticateToken, getNFTs);
 
 // Notifications
 router.get("/notifications", authenticateToken, getNotifications);
+router.get("/notifications/unread/amount", authenticateToken, getUnreadNotificationsAmount);
 
 // Offers
 router.post("/offer/create", authenticateToken, createOffer);
