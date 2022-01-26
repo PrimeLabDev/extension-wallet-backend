@@ -109,6 +109,22 @@ export const getReceivedOffers = async function (
   }
 };
 
+export const getReceivedOffersByNFTId = async function (
+  req: RequestWithSession,
+  res: Response
+) {
+  const session: TokenPayload = req.session;
+  const nftId = req.params.id;
+  try {
+    const offers = await offerService.getReceivedOffersByNftId(nftId);
+
+    res.json(offers);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error });
+  }
+};
+
 export const rejectOffer = async function (
   req: RequestWithSession,
   res: Response

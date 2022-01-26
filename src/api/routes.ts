@@ -23,6 +23,7 @@ import {
   getReceivedOffers,
   rejectOffer,
   revokeOffer,
+  getReceivedOffersByNFTId,
 } from "./controllers/offers.controller";
 import {
   getNotifications,
@@ -49,6 +50,7 @@ router.post("/offer/create", authenticateToken, createOffer);
 router.patch("/offer/update/:id", authenticateToken, updateOffer);
 router.get("/offer/sent", authenticateToken, getSentOffers);
 router.get("/offer/received", authenticateToken, getReceivedOffers);
+router.get("/offer/received/:id", authenticateToken, getReceivedOffersByNFTId);
 router.patch("/offer/reject/:id", authenticateToken, rejectOffer);
 router.patch("/offer/revoke/:id", authenticateToken, revokeOffer);
 
