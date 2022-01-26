@@ -27,6 +27,7 @@ import {
 import {
   getNotifications,
   getUnreadNotificationsAmount,
+  markAllNotificationsAsRead,
 } from "./controllers/notifications.controller";
 import authenticateToken from "./middlewares/auth.middleware";
 
@@ -43,6 +44,7 @@ router.get("/nfts/list", authenticateToken, getNFTs);
 // Notifications
 router.get("/notifications", authenticateToken, getNotifications);
 router.get("/notifications/unread/amount", authenticateToken, getUnreadNotificationsAmount);
+router.put("/notifications/read", authenticateToken, markAllNotificationsAsRead);
 
 // Offers
 router.post("/offer/create", authenticateToken, createOffer);

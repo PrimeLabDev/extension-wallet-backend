@@ -23,6 +23,24 @@ export class NotificationService {
       throw "Could not get user's notifications unread amount";
     }
   };
+
+  markAllNotificationsAsRead = async (user_id) => {
+    try {
+      const notifications = await Notification.scan({
+        recipient_user_id: user_id,
+        read: false,
+      }).exec();
+      notifications.forEach(async (notification) => {
+        await Notification.update({
+          id: notification.id,
+          read: true,
+        });
+      });
+    } catch (error) {
+      console.log(error);
+      throw "Could not get user's notifications unread amount";
+    }
+  };
 }
 
 export default NotificationService;
