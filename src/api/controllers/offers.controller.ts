@@ -55,9 +55,8 @@ export const updateOffer = async function (
       throw "Invalid params";
     });
 
-    const offer: any = await offerService.getOfferById(offerId);
-
-    if (offer.user_id !== session.near_api.user_info.user_id) {
+    const offer = await offerService.getOfferById(offerId);
+    if (!offer || offer.user_id !== session.near_api.user_info.user_id) {
       throw "Offer does not belong to user";
     }
 
@@ -102,6 +101,22 @@ export const getReceivedOffers = async function (
     const offers = await offerService.getReceivedOffers(
       session.near_api.user_info.user_id
     );
+
+    res.json(offers);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error });
+  }
+};
+
+export const getReceivedOffersByNFTId = async function (
+  req: RequestWithSession,
+  res: Response
+) {
+  const session: TokenPayload = req.session;
+  const nftId = req.params.id;
+  try {
+    const offers = await offerService.getReceivedOffersByNftId(nftId);
 
     res.json(offers);
   } catch (error) {

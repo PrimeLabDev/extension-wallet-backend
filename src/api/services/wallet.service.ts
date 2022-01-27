@@ -3,12 +3,7 @@ import * as crypto from "crypto";
 import Wallet from "../../db/wallet.model";
 
 export class WalletService {
-  createWallet = async ({
-    userId,
-    phone,
-    email,
-    walletName,
-  }): Promise<any> => {
+  createWallet = async ({ userId, phone, email, walletName }): Promise<any> => {
     return await Wallet.create({
       id: crypto.randomUUID(),
       user_id: userId,
@@ -35,10 +30,9 @@ export class WalletService {
     }
   };
 
-  getWalletsByUserId = async ({ userId }): Promise<any> => {
-    return await Wallet.scan({ userId: userId })
-      .exec()
-  }
+  getWalletsByUserId = async (userId): Promise<any> => {
+    return Wallet.scan({ userId: userId }).exec();
+  };
 }
 
 export default WalletService;

@@ -38,7 +38,7 @@ const api = {
   },
   getUserDetails: async (user_id: string) => {
     return axios
-      .get(`${baseUrl}/user/${user_id}`)
+      .get(`${baseUrl}/users/${user_id}`)
       .then((response) => response.data);
   },
   getNFTDetails: async (nft_id: string) => {

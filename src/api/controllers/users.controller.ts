@@ -197,6 +197,9 @@ export const getDetailsByUserId = async (
       session.near_api.user_info.user_id
     );
     const user = await userService.getUserById(session.id);
+    if (!user) {
+      throw "Could not find user";
+    }
     res.json({
       ...nearAppsUser,
       ...user,
@@ -211,6 +214,13 @@ export const getDetails = async (req: RequestWithSession, res: any) => {
   const session: TokenPayload = req.session;
 
   try {
+    const user = await userService.getUserById(session.id).catch((err) => {
+      throw "Could not get user";
+    });
+    if (!user) {
+      throw "Could not find user";
+    }
+
     const nearAppsUser = await api
       .getUserDetails(session.near_api.user_info.user_id)
       .catch((err) => {
@@ -218,17 +228,15 @@ export const getDetails = async (req: RequestWithSession, res: any) => {
         throw "Could not get nearapp user details";
       });
 
-    const user = await userService.getUserById(session.id).catch((err) => {
-      throw "Could not get user";
-    });
     user.wallets = await walletService
       .getWalletsByUserId(user.id)
       .catch((err) => {
+        console.info({ err });
         throw "Could not get user wallets";
       });
 
     const response = {
-      nearAppsUser,
+      nearAppsUser: nearAppsUser?.data,
       user: {
         id: user.id,
         wallets: user.wallets.map((wallet: any) => ({

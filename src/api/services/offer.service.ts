@@ -48,7 +48,7 @@ export class OfferService {
 
   getOfferById = async (offerId) => {
     try {
-      return await Offer.get(offerId);
+      return Offer.get(offerId);
     } catch (error) {
       console.log(error);
       throw `Could not get offer by id=${offerId}`;
@@ -70,6 +70,17 @@ export class OfferService {
     try {
       return await Offer.scan({
         owner_id: user_id,
+      }).exec();
+    } catch (error) {
+      console.log(error);
+      throw "Could not get received offers";
+    }
+  };
+
+  getReceivedOffersByNftId = async (nft_id) => {
+    try {
+      return await Offer.scan({
+        nft_id: nft_id,
       }).exec();
     } catch (error) {
       console.log(error);
