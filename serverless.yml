@@ -19,8 +19,8 @@ provider:
             - dynamodb:DescribeTable
           Resource: "arn:aws:dynamodb:*:*:*"
   environment:
-    USERS_TABLE: users-table-${opt:stage, self:provider.stage}
-    WALLETS_TABLE: wallets-table-${opt:stage, self:provider.stage}
+    USERS_TABLE: extension-users-${opt:stage, self:provider.stage}
+    WALLETS_TABLE: extension-wallets-${opt:stage, self:provider.stage}
     OFFERS_TABLE: extension-offers-${opt:stage, self:provider.stage}
     NOTIFICATIONS_TABLE: extension-notifications-${opt:stage, self:provider.stage}
     NEAR_USERS_API_URL: "https://api.nearlogin.io"
