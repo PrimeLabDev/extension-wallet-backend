@@ -1,3 +1,4 @@
+import * as crypto from "crypto";
 import Notification from "../../db/notifications.model";
 
 export class NotificationService {
@@ -39,6 +40,27 @@ export class NotificationService {
     } catch (error) {
       console.log(error);
       throw "Could not get user's notifications unread amount";
+    }
+  };
+
+  createNotification = async ({
+    type,
+    sender_user_id,
+    recipient_user_id,
+    data,
+  }) => {
+    try {
+      return await Notification.create({
+        id: crypto.randomUUID(),
+        sender_user_id,
+        recipient_user_id,
+        type,
+        data,
+        read: false,
+      });
+    } catch (error) {
+      console.log(error);
+      throw "Could not create notification";
     }
   };
 }

@@ -3,8 +3,8 @@ import * as dynamoose from "dynamoose";
 const NOTIFICATIONS_TABLE = `${process.env.NOTIFICATIONS_TABLE}`;
 
 export const NOTIFICATION_TYPES = {
-  OfferReceived: "OfferReceived",
-  CounterOfferReceived: "CounterOfferReceived",
+  OfferSent: "OfferSent",
+  OfferCounterOffered: "OfferCounterOffered",
   OfferRejected: "OfferRejected",
   OfferRevoked: "OfferRevoked",
   OfferAccepted: "OfferAccepted",
@@ -18,8 +18,8 @@ export const NotificationSchema = new dynamoose.Schema(
     type: {
       type: String,
       enum: [
-        NOTIFICATION_TYPES.OfferReceived,
-        NOTIFICATION_TYPES.CounterOfferReceived,
+        NOTIFICATION_TYPES.OfferSent,
+        NOTIFICATION_TYPES.OfferCounterOffered,
         NOTIFICATION_TYPES.OfferRejected,
         NOTIFICATION_TYPES.OfferRevoked,
         NOTIFICATION_TYPES.OfferAccepted,
