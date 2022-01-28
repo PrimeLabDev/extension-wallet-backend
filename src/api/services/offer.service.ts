@@ -77,6 +77,17 @@ export class OfferService {
     }
   };
 
+  getReceivedOffersByNftId = async (nft_id) => {
+    try {
+      return await Offer.scan({
+        nft_id: nft_id,
+      }).exec();
+    } catch (error) {
+      console.log(error);
+      throw "Could not get received offers";
+    }
+  };
+
   revokeOffer = async (offerId) => {
     try {
       return await Offer.update(
