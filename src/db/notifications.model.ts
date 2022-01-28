@@ -4,6 +4,7 @@ const NOTIFICATIONS_TABLE = `${process.env.NOTIFICATIONS_TABLE}`;
 
 export const NOTIFICATION_TYPES = {
   OfferSent: "OfferSent",
+  OfferUpdated: "OfferUpdated",
   OfferCounterOffered: "OfferCounterOffered",
   OfferRejected: "OfferRejected",
   OfferRevoked: "OfferRevoked",
@@ -19,6 +20,7 @@ export const NotificationSchema = new dynamoose.Schema(
       type: String,
       enum: [
         NOTIFICATION_TYPES.OfferSent,
+        NOTIFICATION_TYPES.OfferUpdated,
         NOTIFICATION_TYPES.OfferCounterOffered,
         NOTIFICATION_TYPES.OfferRejected,
         NOTIFICATION_TYPES.OfferRevoked,
