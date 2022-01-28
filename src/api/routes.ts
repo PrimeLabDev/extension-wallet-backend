@@ -23,6 +23,7 @@ import {
   getReceivedOffers,
   rejectOffer,
   revokeOffer,
+  getReceivedOffersByNFTId,
 } from "./controllers/offers.controller";
 import {
   getNotifications,
@@ -40,6 +41,7 @@ router.post("/contacts", authenticateToken, createContact);
 router.put("/contacts/:contactId", authenticateToken, updateContact);
 router.get("/nfts/:nftId", authenticateToken, getNFT);
 router.get("/nfts/list", authenticateToken, getNFTs);
+router.get("/nfts/:id/offers/received", authenticateToken, getReceivedOffersByNFTId);
 
 // Notifications
 router.get("/notifications", authenticateToken, getNotifications);
