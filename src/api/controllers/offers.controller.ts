@@ -41,13 +41,14 @@ export const createOffer = async function (
       .then(async (offer) => {
         await notificationService
           .createNotification({
-            type: NOTIFICATION_TYPES.Sent,
+            type: NOTIFICATION_TYPES.OfferSent,
             sender_user_id: session.near_api.user_info.user_id,
             recipient_user_id: nft.data.owner_id,
             data: {
               sender_wallet_name: session.near_api.user_info.wallet_id,
               amount: createOfferRequestDTO.amount,
               nft_title: nft.data.title,
+              offer_id: offer.id,
             },
           })
           .catch((err) => {
