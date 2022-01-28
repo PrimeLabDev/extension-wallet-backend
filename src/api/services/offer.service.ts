@@ -46,7 +46,7 @@ export class OfferService {
     });
   };
 
-  getOfferById = async (offerId) => {
+  getOfferById = async (offerId): Promise<any> => {
     try {
       return Offer.get(offerId);
     } catch (error) {

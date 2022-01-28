@@ -13,7 +13,6 @@ import NotificationService from "../services/notification.service";
 import { NOTIFICATION_TYPES } from "../../db/notifications.model";
 import UserService from "../services/user.service";
 
-
 const userService = new UserService();
 const offerService = new OfferService();
 const nftService = new NFTService();
@@ -86,27 +85,29 @@ export const updateOffer = async function (
 
     const nft = await nftService.getDetails(offer.nft_id);
 
-    await offerService.updateOffer(
-      offerId,
-      updateOfferRequestDTO.days_to_expire,
-      updateOfferRequestDTO.amount
-    ).then(async (offer) => {
-      await notificationService
-        .createNotification({
-          type: NOTIFICATION_TYPES.OfferUpdated,
-          sender_user_id: session.near_api.user_info.user_id,
-          recipient_user_id: nft.data.owner_id,
-          data: {
-            sender_wallet_name: session.near_api.user_info.wallet_id,
-            amount: offer.amount,
-            nft_title: nft.data.title,
-            offer_id: offer.id,
-          },
-        })
-        .catch((err) => {
-          console.log("Could not create notification", err);
-        });
-    });;
+    await offerService
+      .updateOffer(
+        offerId,
+        updateOfferRequestDTO.days_to_expire,
+        updateOfferRequestDTO.amount
+      )
+      .then(async (offer) => {
+        await notificationService
+          .createNotification({
+            type: NOTIFICATION_TYPES.OfferUpdated,
+            sender_user_id: session.near_api.user_info.user_id,
+            recipient_user_id: nft.data.owner_id,
+            data: {
+              sender_wallet_name: session.near_api.user_info.wallet_id,
+              amount: offer.amount,
+              nft_title: nft.data.title,
+              offer_id: offer.id,
+            },
+          })
+          .catch((err) => {
+            console.log("Could not create notification", err);
+          });
+      });
 
     res.json({ message: "Offer updated" });
   } catch (error) {
@@ -200,8 +201,6 @@ export const rejectOffer = async function (
   } catch (error) {
     return res.status(500).json({ error });
   }
-
-  res.json({ message: "Offer rejected" });
 };
 
 export const revokeOffer = async function (
@@ -211,22 +210,24 @@ export const revokeOffer = async function (
   const session: TokenPayload = req.session;
   const offerId = req.params.id;
   try {
-    const offer = await offerService.getOfferById(offerId).then(async (offer) => {
-      const ownerDetails = await userService.getUserById(offer.user_id);
-      await notificationService
-        .createNotification({
-          type: NOTIFICATION_TYPES.OfferRevoked,
-          sender_user_id: offer.user_id,
-          recipient_user_id: offer.owner_id,
-          data: {
-            sender_wallet_name: ownerDetails.wallet_id,
-            offer_id: offer.id,
-          },
-        })
-        .catch((err) => {
-          console.log("Could not create notification", err);
-        });
-    });;
+    const offer: any = await offerService
+      .getOfferById(offerId)
+      .then(async (offer) => {
+        const ownerDetails = await userService.getUserById(offer.user_id);
+        await notificationService
+          .createNotification({
+            type: NOTIFICATION_TYPES.OfferRevoked,
+            sender_user_id: offer.user_id,
+            recipient_user_id: offer.owner_id,
+            data: {
+              sender_wallet_name: ownerDetails.wallet_id,
+              offer_id: offer.id,
+            },
+          })
+          .catch((err) => {
+            console.log("Could not create notification", err);
+          });
+      });
 
     if (offer.user_id !== session.near_api.user_info.user_id) {
       throw "Offer does not belong to user";
@@ -237,6 +238,4 @@ export const revokeOffer = async function (
   } catch (error) {
     return res.status(500).json({ error });
   }
-
-  res.json({ message: "Offer revoked" });
 };
