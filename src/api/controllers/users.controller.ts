@@ -134,7 +134,7 @@ export const createPasscode = async function (req: any, res: Response) {
         console.info({ err });
         throw "Could not update user";
       });
-    res.json({ ok: true });
+    res.json({ message: "Passcode created" });
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: "Could not verify user" });

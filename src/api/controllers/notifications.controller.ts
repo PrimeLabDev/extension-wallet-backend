@@ -51,7 +51,7 @@ export const markAllNotificationsAsRead = async function (
         console.log(error);
         throw "Could not mark notifications as read";
       });
-    res.json({ ok: true });
+    res.json({ message: "Notifications marked as read" });
   } catch (error) {
     console.log(error);
     res.status(500).json({ error });
