@@ -28,9 +28,14 @@ All merges made to the **dev** branch, will deploy automatically to the dev envi
 
 https://xkfvqk07j4.execute-api.us-east-1.amazonaws.com
 
-All merges to **main** will deploy automatically to the production server.
+All merges to **main** will deploy automatically to the production server via  **Github Actions** (configuration file on .github/workflows/main.yml).
 
 https://4bwgh31qeh.execute-api.us-east-1.amazonaws.com
+
+
+## Postman collection
+
+https://universal-shadow-890045.postman.co/workspace/Homepage---Extension~bc8870f9-83e5-4a1b-b8af-02770e7359de/overview
 
 ## DATABASE
 
