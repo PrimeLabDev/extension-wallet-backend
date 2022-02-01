@@ -32,7 +32,7 @@ export const getUnreadNotificationsAmount = async function (
       await notificationService.getUnreadNotificationsByUserId(
         session.near_api.user_info.user_id
       );
-    res.json({ count: notifications.length });
+    res.json({ count: notifications?.length || 0 });
   } catch (error) {
     console.log(error);
     res.status(500).json({ error });
@@ -45,12 +45,9 @@ export const markAllNotificationsAsRead = async function (
 ) {
   const session: TokenPayload = req.session;
   try {
-    await notificationService
-      .markAllNotificationsAsRead(session.near_api.user_info.user_id)
-      .catch((error) => {
-        console.log(error);
-        throw "Could not mark notifications as read";
-      });
+    await notificationService.markAllNotificationsAsRead(
+      session.near_api.user_info.user_id
+    );
     res.json({ message: "Notifications marked as read" });
   } catch (error) {
     console.log(error);
