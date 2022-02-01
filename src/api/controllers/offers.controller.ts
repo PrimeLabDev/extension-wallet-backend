@@ -10,13 +10,21 @@ import { RequestWithSession } from "../interfaces/express.interface";
 import OfferService from "../services/offer.service";
 import NFTService from "../services/nfts.service";
 import NotificationService from "../services/notification.service";
-import { NOTIFICATION_TYPES } from "../../db/notifications.model";
 import UserService from "../services/user.service";
 
 const userService = new UserService();
 const offerService = new OfferService();
 const nftService = new NFTService();
 const notificationService = new NotificationService();
+
+const NOTIFICATION_TYPES = {
+  OfferSent: "OfferSent",
+  OfferUpdated: "OfferUpdated",
+  OfferCounterOffered: "OfferCounterOffered",
+  OfferRejected: "OfferRejected",
+  OfferRevoked: "OfferRevoked",
+  OfferAccepted: "OfferAccepted",
+};
 
 export const createOffer = async function (
   req: RequestWithSession,
