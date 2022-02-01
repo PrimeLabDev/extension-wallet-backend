@@ -1,12 +1,25 @@
-import * as crypto from "crypto";
-import Notification from "../../db/notifications.model";
+import * as AWS from "aws-sdk";
+
+var dynamoDB = new AWS.DynamoDB({ apiVersion: "2012-08-10" });
+
+const NOTIFICATIONS_TABLE = process.env.NOTIFICATIONS_TABLE || "";
 
 export class NotificationService {
   getNotificationsByUserId = async (user_id) => {
     try {
-      return await Notification.scan({
-        recipient_user_id: user_id,
-      }).exec();
+      const items = await dynamoDB
+        .query({
+          TableName: NOTIFICATIONS_TABLE,
+          KeyConditionExpression: "recipient_user_id = :x",
+          ExpressionAttributeValues: {
+            ":x": AWS.DynamoDB.Converter.input(user_id),
+          },
+          ScanIndexForward: false,
+        })
+        .promise();
+      return items.Items?.map((item: any) =>
+        AWS.DynamoDB.Converter.unmarshall(item)
+      );
     } catch (error) {
       console.log(error);
       throw "Could not get user's notifications";
@@ -15,10 +28,21 @@ export class NotificationService {
 
   getUnreadNotificationsByUserId = async (user_id) => {
     try {
-      return await Notification.scan({
-        recipient_user_id: user_id,
-        read: false,
-      }).exec();
+      const items = await dynamoDB
+        .query({
+          TableName: NOTIFICATIONS_TABLE,
+          IndexName: "recipient_user_id-is_read-index",
+          KeyConditionExpression: "recipient_user_id = :x AND is_read = :y",
+          ExpressionAttributeValues: {
+            ":x": AWS.DynamoDB.Converter.input(user_id),
+            ":y": AWS.DynamoDB.Converter.input(0),
+          },
+          ScanIndexForward: false,
+        })
+        .promise();
+      return items.Items?.map((item: any) =>
+        AWS.DynamoDB.Converter.unmarshall(item)
+      );
     } catch (error) {
       console.log(error);
       throw "Could not get user's notifications unread amount";
@@ -27,15 +51,35 @@ export class NotificationService {
 
   markAllNotificationsAsRead = async (user_id) => {
     try {
-      const notifications = await Notification.scan({
-        recipient_user_id: user_id,
-        read: false,
-      }).exec();
-      notifications.forEach(async (notification) => {
-        await Notification.update({
-          id: notification.id,
-          read: true,
-        });
+      const items = await dynamoDB
+        .query({
+          TableName: NOTIFICATIONS_TABLE,
+          KeyConditionExpression: "recipient_user_id = :x",
+          ExpressionAttributeValues: {
+            ":x": AWS.DynamoDB.Converter.input(user_id),
+          },
+          ScanIndexForward: false,
+        })
+        .promise();
+      const notifications = items.Items?.map((item: any) =>
+        AWS.DynamoDB.Converter.unmarshall(item)
+      );
+      notifications?.forEach(async (notification) => {
+        await dynamoDB
+          .updateItem({
+            TableName: NOTIFICATIONS_TABLE,
+            Key: {
+              recipient_user_id: AWS.DynamoDB.Converter.input(
+                notification.recipient_user_id
+              ),
+              createdAt: AWS.DynamoDB.Converter.input(notification.createdAt),
+            },
+            UpdateExpression: "set is_read = :x",
+            ExpressionAttributeValues: {
+              ":x": AWS.DynamoDB.Converter.input(1),
+            },
+          })
+          .promise();
       });
     } catch (error) {
       console.log(error);
@@ -50,14 +94,19 @@ export class NotificationService {
     data,
   }) => {
     try {
-      return await Notification.create({
-        id: crypto.randomUUID(),
-        sender_user_id,
-        recipient_user_id,
-        type,
-        data,
-        read: false,
-      });
+      return await dynamoDB
+        .putItem({
+          TableName: NOTIFICATIONS_TABLE,
+          Item: {
+            type: AWS.DynamoDB.Converter.input(type),
+            sender_user_id: AWS.DynamoDB.Converter.input(sender_user_id),
+            recipient_user_id: AWS.DynamoDB.Converter.input(recipient_user_id),
+            is_read: AWS.DynamoDB.Converter.input(0),
+            data: AWS.DynamoDB.Converter.input(data),
+            createdAt: AWS.DynamoDB.Converter.input(new Date().getTime()),
+          },
+        })
+        .promise();
     } catch (error) {
       console.log(error);
       throw "Could not create notification";
