@@ -7,7 +7,9 @@ import {
   importContacts,
   getNFT,
   getNFTs,
-  getNFTTransactions
+  getNFTTransactions,
+  getAppDetails,
+  getApps
 } from "./controllers/proxies.controller";
 import {
   createUser,
@@ -46,6 +48,8 @@ router.get("/nfts/:nftId", authenticateToken, getNFT);
 router.get("/nfts/list", authenticateToken, getNFTs);
 router.get("/nfts/:id/offers/received", authenticateToken, getReceivedOffersByNFTId);
 router.get("/transactions/nft/:nftId", authenticateToken, getNFTTransactions);
+router.get("/apps/:appId", authenticateToken, getAppDetails);
+router.get("/apps", authenticateToken, getApps);
 
 // Notifications
 router.get("/notifications", authenticateToken, getNotifications);
