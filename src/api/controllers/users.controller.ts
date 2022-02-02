@@ -50,8 +50,7 @@ export const createUser = async function (req: Request, res: Response) {
         .json({ error: "Wallet already exists, please login" });
     }
 
-    const newUser: any = userService.createEmptyUser();
-
+    const newUser: any = await userService.createEmptyUser();
     await walletService.createWallet({
       userId: newUser.id,
       walletName: registrationDTO.walletName,
