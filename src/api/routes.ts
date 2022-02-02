@@ -8,6 +8,8 @@ import {
   getNFT,
   getNFTs,
   getNFTTransactions,
+  getUserTransactions,
+  getTransactionDetails,
   getAppDetails,
   getApps
 } from "./controllers/proxies.controller";
@@ -48,6 +50,8 @@ router.get("/nfts/:nftId", authenticateToken, getNFT);
 router.get("/nfts/list", authenticateToken, getNFTs);
 router.get("/nfts/:id/offers/received", authenticateToken, getReceivedOffersByNFTId);
 router.get("/transactions/nft/:nftId", authenticateToken, getNFTTransactions);
+router.get("/transactions/list/:userId", authenticateToken, getUserTransactions);
+router.get("/transactions/:id", authenticateToken, getTransactionDetails);
 router.get("/apps/:appId", authenticateToken, getAppDetails);
 router.get("/apps", authenticateToken, getApps);
 
