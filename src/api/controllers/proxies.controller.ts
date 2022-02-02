@@ -66,6 +66,19 @@ export const getNFTTransactions = async function(req: RequestWithSession, res: R
   res.status(response.status).json(response.data); 
 }
 
+export const getAppDetails = async function(req: RequestWithSession, res: Response) {
+  const nearAppsRequest = buildNearAppsRequest(req);
+  const response = await api.proxyNearApps(nearAppsRequest);
+  res.status(response.status).json(response.data); 
+}
+
+
+export const getApps = async function(req: RequestWithSession, res: Response) {
+  const nearAppsRequest = buildNearAppsRequest(req);
+  const response = await api.proxyNearApps(nearAppsRequest);
+  res.status(response.status).json(response.data); 
+}
+
 const buildNearAppsRequest = (req: RequestWithSession) => {
   return {
     method: req.method,
