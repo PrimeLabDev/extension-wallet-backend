@@ -37,7 +37,7 @@ node_modules
 
 #SERVERLESS STUFF
 admin.env
-.env
 _meta
 .serverless
 .build
+config.bat

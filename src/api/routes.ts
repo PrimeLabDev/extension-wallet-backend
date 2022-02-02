@@ -4,6 +4,7 @@ import {
   getContactList,
   createContact,
   updateContact,
+  importContacts,
   getNFT,
   getNFTs,
   getNFTTransactions
@@ -40,6 +41,7 @@ router.get("/contacts/:contactId", authenticateToken, getContact);
 router.get("/contacts/list/:userId", authenticateToken, getContactList);
 router.post("/contacts", authenticateToken, createContact);
 router.put("/contacts/:contactId", authenticateToken, updateContact);
+router.post("/contacts/import", authenticateToken, importContacts);
 router.get("/nfts/:nftId", authenticateToken, getNFT);
 router.get("/nfts/list", authenticateToken, getNFTs);
 router.get("/nfts/:id/offers/received", authenticateToken, getReceivedOffersByNFTId);
