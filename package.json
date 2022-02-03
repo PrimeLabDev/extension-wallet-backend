@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "HomePage API Serverless Components",
   "scripts": {
-    "dev": "sls offline --httpPort 3001",
+    "dev": "node init && sls offline --httpPort 3001",
     "deploy:dev": "SLS_DEBUG=true sls deploy --stage dev",
     "deploy:prod": "sls deploy --stage prod"
   },
@@ -16,6 +16,7 @@
     "dynamoose": "^2.8.3",
     "express": "^4.17.1",
     "jsonwebtoken": "^8.5.1",
+    "node-fetch": "^3.3.2",
     "serverless-http": "^2.7.0",
     "yup": "^0.32.11"
   },

@@ -4,8 +4,14 @@ import {
   getContactList,
   createContact,
   updateContact,
+  importContacts,
   getNFT,
   getNFTs,
+  getNFTTransactions,
+  getUserTransactions,
+  getTransactionDetails,
+  getAppDetails,
+  getApps
 } from "./controllers/proxies.controller";
 import {
   createUser,
@@ -39,9 +45,15 @@ router.get("/contacts/:contactId", authenticateToken, getContact);
 router.get("/contacts/list/:userId", authenticateToken, getContactList);
 router.post("/contacts", authenticateToken, createContact);
 router.put("/contacts/:contactId", authenticateToken, updateContact);
+router.post("/contacts/import", authenticateToken, importContacts);
 router.get("/nfts/:nftId", authenticateToken, getNFT);
 router.get("/nfts/list", authenticateToken, getNFTs);
 router.get("/nfts/:id/offers/received", authenticateToken, getReceivedOffersByNFTId);
+router.get("/transactions/nft/:nftId", authenticateToken, getNFTTransactions);
+router.get("/transactions/list/:userId", authenticateToken, getUserTransactions);
+router.get("/transactions/:id", authenticateToken, getTransactionDetails);
+router.get("/apps/:appId", authenticateToken, getAppDetails);
+router.get("/apps", authenticateToken, getApps);
 
 // Notifications
 router.get("/notifications", authenticateToken, getNotifications);
